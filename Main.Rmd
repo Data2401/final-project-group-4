@@ -12,27 +12,99 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 data <- read.csv("data.csv")
 head(data)
+```
+
+```{r}
+data
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
 
 ```
 
 
 ```{r}
-#this is the highest priced vehicle for each group of Number.of.Doors
-library(ggplot2)
-ggplot(data, aes(Number.of.Doors, MSRP)) + 
-  geom_col()
-```
-
-```{r}
+library(shiny)
+library(plotly)
 library(dplyr)
 
-data %>%
-  group_by(Number.of.Doors) %>%
-  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
-  ggplot(aes(x = Number.of.Doors, y = avg_MSRP)) +
-  geom_col()
-#this checks the average of each type of Number.of.Doors
+ui <- fluidPage(
+  titlePanel("Interactive MSRP Analysis"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        "xvar",
+        "Choose influencing factor:",
+        choices = c("Engine Horsepower" = "Engine.HP",
+                    "Highway MPG" = "highway.MPG",
+                    "City MPG" = "city.mpg")
+      ),
+      
+      selectInput(
+        "make_filter",
+        "Filter by Make:",
+        choices = c("All", sort(unique(data$Make))),
+        selected = "All"
+      )
+    ),
+    
+    mainPanel(
+      plotlyOutput("msrp_plot")
+    )
+  )
+)
 
-#What is the average price for tow door cars a s opposed to four door cars?
+server <- function(input, output) {
+  
+  filtered_data <- reactive({
+    if (input$make_filter == "All") {
+      data
+    } else {
+      data %>% filter(Make == input$make_filter)
+    }
+  })
+  
+  output$msrp_plot <- renderPlotly({
+    df <- filtered_data()
+    
+    x_values <- df[[input$xvar]]
+    
+    plot_ly(
+      data = df,
+      x = ~x_values,
+      y = ~MSRP,
+      type = "scatter",
+      mode = "markers",
+      text = ~paste0(
+        "Make: ", Make,
+        "<br>Model: ", Model,
+        "<br>", input$xvar, ": ", x_values,
+        "<br>MSRP: $", MSRP
+      ),
+      hoverinfo = "text"
+    ) %>%
+      layout(
+        title = paste(input$xvar, "vs MSRP"),
+        xaxis = list(title = input$xvar),
+        yaxis = list(title = "MSRP")
+      )
+  })
+}
+
+shinyApp(ui = ui, server = server)
 ```
 
