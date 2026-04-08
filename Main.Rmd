@@ -20,19 +20,23 @@ data
 ```
 
 ```{r}
-
+#this is the highest priced vehicle for each group of Number.of.Doors
+library(ggplot2)
+ggplot(data, aes(Number.of.Doors, MSRP)) + 
+  geom_col()
 ```
 
 ```{r}
+library(dplyr)
 
-```
+data %>%
+  group_by(Number.of.Doors) %>%
+  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
+  ggplot(aes(x = Number.of.Doors, y = avg_MSRP)) +
+  geom_col()
+#this checks the average of each type of Number.of.Doors
 
-```{r}
-
-```
-
-```{r}
-
+#What is the average price for tow door cars a s opposed to four door cars?
 ```
 
 
