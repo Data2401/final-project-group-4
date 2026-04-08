@@ -3,6 +3,7 @@ title: "Main"
 author: "EJ"
 date: "2026-04-08"
 output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 data <- read.csv("data.csv")
 head(data)
 ```
-
+This data set is about the different models of different cars that contains car listing, where each row represents a single vehicle and each column represent a specific feature of the car. That also has numerical and categorical variables.
 ```{r}
 data
 
