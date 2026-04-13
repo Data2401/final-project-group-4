@@ -36,10 +36,51 @@ head(data)
 ```
 
 ```{r}
-data
+library(dplyr)
+glimpse(data)
 
 ```
 
+```{r}
+data$Driven_Wheels <- gsub("all wheel drive", "AWD", data$Driven_Wheels)
+data$Driven_Wheels <- gsub("rear wheel drive", "RWD", data$Driven_Wheels)
+data$Driven_Wheels <- gsub("front wheel drive", "FWD", data$Driven_Wheels)
+data$Driven_Wheels <- gsub("four wheel drive", "4WD", data$Driven_Wheels)
+```
+
+```{r}
+
+library(dplyr)
+
+data <- data %>% mutate(Engine.Fuel.Type = case_when(
+  Engine.Fuel.Type == "premium unleaded (required)"                    ~ "premium unleaded",
+  Engine.Fuel.Type == "premium unleaded (recommended)"                 ~ "premium unleaded",
+  Engine.Fuel.Type == "flex-fuel (unleaded/E85)"                       ~ "Flex-Fuel",
+  Engine.Fuel.Type == "flex-fuel (premium unleaded recommended/E85)"   ~ "Flex-Fuel",
+  Engine.Fuel.Type == "flex-fuel (premium unleaded required/E85)"      ~ "Flex-Fuel",
+  Engine.Fuel.Type == "flex-fuel (unleaded/natural gas)"               ~ "Flex-Fuel",
+  Engine.Fuel.Type == "flex-fuel (premium unleaded/E85)"               ~ "Flex-Fuel",
+  TRUE ~ Engine.Fuel.Type   # keep everything else unchanged
+))
+```
+
+```{r}
+unique(data$Engine.Fuel.Type)
+#drop natural gas and electric and figure out any blanks
+#for sure drop natural gas and electric
+```
+
+```{r}
+data <- data %>% filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
+```
+```{r}
+
+```
+
+
+
+
+We can get rid of Spyker, Tesla, and any eletrical vehicle
 ```{r}
 #this is the highest priced vehicle for each group of Number.of.Doors
 
