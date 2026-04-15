@@ -87,10 +87,6 @@ data <- data %>%
 glimpse(data)
 ```
 
-
-
-
-
 ```{r}
 #this is the highest priced vehicle for each group of Number.of.Doors
 
@@ -102,8 +98,6 @@ ggplot(data, aes(Number.of.Doors, MSRP)) +
 
 What factors most strongly influence a car’s price(MSRP)?
 ```{r}
-
-
 library(shiny)
 library(plotly)
 library(dplyr)
@@ -175,7 +169,7 @@ shinyApp(ui = ui, server = server)
 ```
 
 
-What is the average price for tow door cars a s opposed to four door cars?
+What is the average price for two door cars as opposed to four door cars?
 ```{r}
 library(dplyr)
 
