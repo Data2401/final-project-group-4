@@ -5,7 +5,7 @@ date: "2026-04-08"
 output: html_document
 ---
 
-Introduction-
+Introduction--
 
 When we think about cars, we often focus on style, performance, or brand reputation but behind every vehicle is a combination of features that ultimately determine its price. For this project, we chose to analyze the Car Features and MSRP dataset from Kaggle, which contains detailed information about thousands of vehicles sold in the U.S. market. Each row represents a single car, and each column describes a specific characteristic such as horsepower, fuel efficiency, drivetrain type, number of doors, market category, and more.
 
