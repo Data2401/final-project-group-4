@@ -17,7 +17,7 @@ Research Questions
 
 Domain Question: What factors most strongly influence a car’s price(MSRP)? This question helps frame the overall purpose of the project identifying which vehicle characteristics are most closely associated with higher or lower prices. Sub Questions: What is the average price for two‑door cars as opposed to four‑door cars? This examines whether basic design features influence MSRP.
 
-How do engine size, horsepower, or MPG relate to MSRP? This explores performance‑based predictors of price.
+How do engine size, horsepower, or MPG relate to MSRP? This explores performance based predictors of price.
 
 How does drivetrain type (FWD, RWD, AWD) influence average MSRP? This looks at how mechanical systems relate to cost.
 
@@ -86,9 +86,95 @@ data <- data %>%
 glimpse(data)
 ```
 
+<<<<<<< HEAD
+```{r}
+#this is the highest priced vehicle for each group of Number.of.Doors
+
+library(ggplot2)
+ggplot(data, aes(Number.of.Doors, MSRP)) + 
+  geom_col()
+```
+
+
+What factors most strongly influence a car’s price(MSRP)?
+```{r}
+library(shiny)
+library(plotly)
+library(dplyr)
+ui <- fluidPage(
+  titlePanel("Interactive MSRP Analysis"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(
+        "xvar",
+        "Choose influencing factor:",
+        choices = c("Engine Horsepower" = "Engine.HP",
+                    "Highway MPG" = "highway.MPG",
+                    "City MPG" = "city.mpg")
+      ),
+      
+      selectInput(
+        "make_filter",
+        "Filter by Make:",
+        choices = c("All", sort(unique(data$Make))),
+        selected = "All"
+      )
+    ),
+    
+    mainPanel(
+      plotlyOutput("msrp_plot")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  filtered_data <- reactive({
+    if (input$make_filter == "All") {
+      data
+    } else {
+      data %>% filter(Make == input$make_filter)
+    }
+  })
+  
+  output$msrp_plot <- renderPlotly({
+    df <- filtered_data()
+    
+    x_values <- df[[input$xvar]]
+    
+    plot_ly(
+      data = df,
+      x = ~x_values,
+      y = ~MSRP,
+      type = "scatter",
+      mode = "markers",
+      text = ~paste0(
+        "Make: ", Make,
+        "<br>Model: ", Model,
+        "<br>", input$xvar, ": ", x_values,
+        "<br>MSRP: $", MSRP
+      ),
+      hoverinfo = "text"
+    ) %>%
+      layout(
+        title = paste(input$xvar, "vs MSRP"),
+        xaxis = list(title = input$xvar),
+        yaxis = list(title = "MSRP")
+      )
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+What is the average price for two door cars as opposed to four door cars?
+=======
 
 
 What is the average price for tow door cars a s opposed to four door cars?
+>>>>>>> e6b7b3d71fe5980713c27738c7f415fe15e57ded
 ```{r}
 library(dplyr)
 library(ggplot2)
