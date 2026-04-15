@@ -18,7 +18,7 @@ Research Questions
 
 Domain Question: What factors most strongly influence a car’s price(MSRP)? This question helps frame the overall purpose of the project identifying which vehicle characteristics are most closely associated with higher or lower prices. Sub Questions: What is the average price for two‑door cars as opposed to four‑door cars? This examines whether basic design features influence MSRP.
 
-How do engine size, horsepower, or MPG relate to MSRP? This explores performance‑based predictors of price.
+How do engine size, horsepower, or MPG relate to MSRP? This explores performance based predictors of price.
 
 How does drivetrain type (FWD, RWD, AWD) influence average MSRP? This looks at how mechanical systems relate to cost.
 
