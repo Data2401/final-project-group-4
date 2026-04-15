@@ -3,10 +3,9 @@ title: "Main"
 author: "Group 4"
 date: "2026-04-08"
 output: html_document
-runtime: shiny
 ---
 
-Introduction
+Introduction--
 
 When we think about cars, we often focus on style, performance, or brand reputation but behind every vehicle is a combination of features that ultimately determine its price. For this project, we chose to analyze the Car Features and MSRP dataset from Kaggle, which contains detailed information about thousands of vehicles sold in the U.S. market. Each row represents a single car, and each column describes a specific characteristic such as horsepower, fuel efficiency, drivetrain type, number of doors, market category, and more.
 
@@ -87,6 +86,7 @@ data <- data %>%
 glimpse(data)
 ```
 
+<<<<<<< HEAD
 ```{r}
 #this is the highest priced vehicle for each group of Number.of.Doors
 
@@ -170,9 +170,14 @@ shinyApp(ui = ui, server = server)
 
 
 What is the average price for two door cars as opposed to four door cars?
+=======
+
+
+What is the average price for tow door cars a s opposed to four door cars?
+>>>>>>> e6b7b3d71fe5980713c27738c7f415fe15e57ded
 ```{r}
 library(dplyr)
-
+library(ggplot2)
 data %>%
   group_by(Number.of.Doors) %>%
   summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
