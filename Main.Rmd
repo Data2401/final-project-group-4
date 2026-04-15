@@ -31,14 +31,65 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(dplyr)
 data <- read.csv("data.csv")
 head(data)
 ```
 
 ```{r}
-data
+# Drop Market Category — too many NAs and not relevant to our analysis
+#data <- data %>%
+#  select(-Market.Category)
+# We will talk about this
+```
+
+```{r}
+# Standardize drive wheel labels to abbreviations
+data <- data %>%
+  mutate(Driven_Wheels = gsub("all wheel drive", "AWD", Driven_Wheels),
+         Driven_Wheels = gsub("rear wheel drive", "RWD", Driven_Wheels),
+         Driven_Wheels = gsub("front wheel drive", "FWD", Driven_Wheels),
+         Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
+```
+
+```{r}
+# Consolidate verbose fuel type labels into clean, consistent categories
+data <- data %>%
+  mutate(Engine.Fuel.Type = case_when(
+    Engine.Fuel.Type == "premium unleaded (required)"                  ~ "premium unleaded",
+    Engine.Fuel.Type == "premium unleaded (recommended)"               ~ "premium unleaded",
+    Engine.Fuel.Type == "flex-fuel (unleaded/E85)"                     ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded recommended/E85)" ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded required/E85)"    ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (unleaded/natural gas)"             ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded/E85)"             ~ "Flex-Fuel",
+    TRUE ~ Engine.Fuel.Type
+  ))
+```
+
+```{r}
+# Filter out unwanted transmission types and fuel types
+data <- data %>%
+  filter(!Transmission.Type %in% c("UNKNOWN", "DIRECT_DRIVE")) %>%
+  filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
 
 ```
+
+```{r}
+# Remove rows with missing values in key numeric columns
+data <- data %>%
+  filter(!is.na(Number.of.Doors),
+         !is.na(Engine.Cylinders),
+         !is.na(Engine.HP))
+```
+
+```{r}
+glimpse(data)
+```
+
+
+
+
 
 ```{r}
 #this is the highest priced vehicle for each group of Number.of.Doors
