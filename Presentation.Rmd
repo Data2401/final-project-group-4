@@ -1,5 +1,66 @@
 ---
-title: "Presentation"
-output: html_document
+title: "Exploring the US Car Market"
+author: "Group 4"
+date: "04/15/2026"
+output: slidy_presentation
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+Have you ever wondered why some cars cost significantly more than others? Whether it’s horsepower, fuel efficiency, drivetrain type, or even the number of doors, each feature plays a role in determining a vehicle’s price. For this project, we analyzed the Car Features and MSRP dataset to explore how different characteristics relate to a car’s MSRP. This dataset includes information such as engine performance, MPG, drivetrain, market category, and more.
+Our goal is to understand which features most strongly influence price and whether clear subgroups exist within the U.S. car market.
+
+## Questions
+Domain Question:  
+What factors most strongly influence a car’s price (MSRP)?
+
+Sub‑Questions:
+
+1. What is the average price for two‑door vs. four‑door cars?
+
+2. How do engine size, horsepower, or MPG relate to MSRP?
+
+3. How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
+
+4. Are there clusters or subgroups of cars (luxury vs. economy)?
+
+## Unfiltered Data
+
+Some text about this table and how interesting the results are!
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Key Variable 
+
+Engine.HP – Horsepower
+
+city.mpg / highway.MPG – Fuel efficiency
+
+Driven_Wheels – Drivetrain type
+
+Number.of.Doors – Vehicle design
+
+Market.Category – Luxury, performance, exotic, etc.
+
+MSRP – Manufacturer’s Suggested Retail Price
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
+some text about how cool my plot is.
+
+------------------------------------------------------------------------
+
+Three dashes make a new slide without having to put a title, and the three-# titles don't make a new slide, only the two and one.
+
+### see?
+
+still on the same slide.
