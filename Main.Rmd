@@ -5,7 +5,7 @@ date: "2026-04-08"
 output: html_document
 ---
 
-Introduction
+# Introduction--
 
 When we think about cars, we often focus on style, performance, or brand reputation but behind every vehicle is a combination of features that ultimately determine its price. For this project, we chose to analyze the Car Features and MSRP dataset from Kaggle, which contains detailed information about thousands of vehicles sold in the U.S. market. Each row represents a single car, and each column describes a specific characteristic such as horsepower, fuel efficiency, drivetrain type, number of doors, market category, and more.
 
@@ -13,15 +13,17 @@ This dataset is ideal for exploring how different design, performance, and mecha
 
 To guide this analysis, we developed one main domain question and several sub‑questions that focus on specific features within the dataset.
 
-Research Questions
+# Research Questions
 
-Domain Question: What factors most strongly influence a car’s price(MSRP)? This question helps frame the overall purpose of the project identifying which vehicle characteristics are most closely associated with higher or lower prices. Sub Questions: What is the average price for two‑door cars as opposed to four‑door cars? This examines whether basic design features influence MSRP.
+Domain Question: 
 
-How do engine size, horsepower, or MPG relate to MSRP? This explores performance based predictors of price.
+* What factors most strongly influence a car’s price(MSRP)? This question helps frame the overall purpose of the project identifying which vehicle characteristics are most closely associated with higher or lower prices. Sub Questions: What is the average price for two‑door cars as opposed to four‑door cars? This examines whether basic design features influence MSRP.
 
-How does drivetrain type (FWD, RWD, AWD) influence average MSRP? This looks at how mechanical systems relate to cost.
+* How do engine size, horsepower, or MPG relate to MSRP? This explores performance‑based predictors of price.
 
-Are there clusters or subgroups of cars (luxury vs. economy)? This helps identify whether market categories form distinct pricing groups.
+* How does drivetrain type (FWD, RWD, AWD) influence average MSRP? This looks at how mechanical systems relate to cost.
+
+* Are there clusters or subgroups of cars (luxury vs. economy)? This helps identify whether market categories form distinct pricing groups.
 
 Together, these questions allow for a complete analysis of how design, performance, and market identity contribute to vehicle pricing.
 
@@ -75,106 +77,29 @@ data <- data %>%
 ```
 
 ```{r}
-# Remove rows with missing values in key numeric columns
+# Remove rows with missing values in key numeric columns, as well as cars that cost over a million, as they skew the dataset.
 data <- data %>%
   filter(!is.na(Number.of.Doors),
          !is.na(Engine.Cylinders),
-         !is.na(Engine.HP))
+          !is.na(Engine.HP)) %>%
+  filter(MSRP <= 1000000)
+```
+
+```{r}
+# this is to take out one outlire that is not accurate 
+
+data <- data %>%
+  filter(highway.MPG <= 200)
+
 ```
 
 ```{r}
 glimpse(data)
 ```
 
-<<<<<<< HEAD
-```{r}
-#this is the highest priced vehicle for each group of Number.of.Doors
-
-library(ggplot2)
-ggplot(data, aes(Number.of.Doors, MSRP)) + 
-  geom_col()
-```
-
-
-What factors most strongly influence a car’s price(MSRP)?
-```{r}
-library(shiny)
-library(plotly)
-library(dplyr)
-ui <- fluidPage(
-  titlePanel("Interactive MSRP Analysis"),
-  
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(
-        "xvar",
-        "Choose influencing factor:",
-        choices = c("Engine Horsepower" = "Engine.HP",
-                    "Highway MPG" = "highway.MPG",
-                    "City MPG" = "city.mpg")
-      ),
-      
-      selectInput(
-        "make_filter",
-        "Filter by Make:",
-        choices = c("All", sort(unique(data$Make))),
-        selected = "All"
-      )
-    ),
-    
-    mainPanel(
-      plotlyOutput("msrp_plot")
-    )
-  )
-)
-
-server <- function(input, output) {
-  
-  filtered_data <- reactive({
-    if (input$make_filter == "All") {
-      data
-    } else {
-      data %>% filter(Make == input$make_filter)
-    }
-  })
-  
-  output$msrp_plot <- renderPlotly({
-    df <- filtered_data()
-    
-    x_values <- df[[input$xvar]]
-    
-    plot_ly(
-      data = df,
-      x = ~x_values,
-      y = ~MSRP,
-      type = "scatter",
-      mode = "markers",
-      text = ~paste0(
-        "Make: ", Make,
-        "<br>Model: ", Model,
-        "<br>", input$xvar, ": ", x_values,
-        "<br>MSRP: $", MSRP
-      ),
-      hoverinfo = "text"
-    ) %>%
-      layout(
-        title = paste(input$xvar, "vs MSRP"),
-        xaxis = list(title = input$xvar),
-        yaxis = list(title = "MSRP")
-      )
-  })
-}
-
-shinyApp(ui = ui, server = server)
-```
-
-
-What is the average price for two door cars as opposed to four door cars?
-=======
 
 
 What is the average price for tow door cars a s opposed to four door cars?
->>>>>>> e6b7b3d71fe5980713c27738c7f415fe15e57ded
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -250,8 +175,18 @@ ggplot(data, aes(x = luxury_flag, y = MSRP, fill = luxury_flag)) +
   labs(title = "Luxury vs Non-Luxury MSRP Comparison",
        x = "Category",
        y = "MSRP") +
+  scale_y_log10() +
   scale_fill_manual(values = c("Luxury" = "gold", "Non-Luxury" = "gray"))
 
 ```
 
-To identify broader market patterns, we created a variable that separates cars into “Luxury” and “Non‑Luxury” categories based on the Market.Category column. A boxplot comparing MSRP across these groups shows a dramatic separation. Luxury vehicles have significantly higher MSRPs, forming a distinct cluster with much higher price ranges. Non‑luxury vehicles cluster at lower price points, with far less variation. This confirms that market identity is one of the strongest predictors of MSRP. Luxury brands and performance‑oriented categories consistently command higher prices.
+
+```{r}
+
+"To identify broader market patterns, we created a variable that separates cars into “Luxury” and “Non‑Luxury” categories based on the Market.Category column. A boxplot comparing MSRP across these groups shows a dramatic separation. Luxury vehicles have significantly higher MSRPs, forming a distinct cluster with much higher price ranges. Non‑luxury vehicles cluster at lower price points, with far less variation. This confirms that market identity is one of the strongest predictors of MSRP. Luxury brands and performance‑oriented categories consistently command higher prices."
+
+```
+
+```{r}
+data %>% ggplot(aes(x = MSRP, color = Make)) + geom_density()
+```
