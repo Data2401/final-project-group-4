@@ -1,6 +1,10 @@
 ---
 title: "Main"
+<<<<<<< HEAD
+author: "EJ,David,keem"
+=======
 author: "Group 4"
+>>>>>>> 8d674d1e2a5267de386b7800315a0682751077c6
 date: "2026-04-08"
 output: html_document
 ---
