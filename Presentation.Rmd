@@ -216,4 +216,4 @@ ggplot(brand_counts, aes(x = 1, y = percent, fill = Make)) +
 ```
 
 
-## we can see that Toyota and Honda form a duopoly on the chart, accounting for a mind-boggling 7 out of the top 10 cars (kia keep up lil bro)
+## 
