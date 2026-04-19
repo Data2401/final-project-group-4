@@ -6,26 +6,82 @@ output: slidy_presentation
 ---
 
 ```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(scales)
 knitr::opts_chunk$set(echo = FALSE)
+data <- read.csv("data.csv")
+head(data)
+
 ```
 
+```{r}
+# Drop Market Category — too many NAs and not relevant to our analysis
+#data <- data %>%
+#  select(-Market.Category)
+# We will talk about this
+
+
+
+# Standardize drive wheel labels to abbreviations
+data <- data %>%
+  mutate(Driven_Wheels = gsub("all wheel drive", "AWD", Driven_Wheels),
+         Driven_Wheels = gsub("rear wheel drive", "RWD", Driven_Wheels),
+         Driven_Wheels = gsub("front wheel drive", "FWD", Driven_Wheels),
+         Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
+
+# Consolidate verbose fuel type labels into clean, consistent categories
+data <- data %>%
+  mutate(Engine.Fuel.Type = case_when(
+    Engine.Fuel.Type == "premium unleaded (required)"                  ~ "premium unleaded",
+    Engine.Fuel.Type == "premium unleaded (recommended)"               ~ "premium unleaded",
+    Engine.Fuel.Type == "flex-fuel (unleaded/E85)"                     ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded recommended/E85)" ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded required/E85)"    ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (unleaded/natural gas)"             ~ "Flex-Fuel",
+    Engine.Fuel.Type == "flex-fuel (premium unleaded/E85)"             ~ "Flex-Fuel",
+    TRUE ~ Engine.Fuel.Type
+  ))
+
+# Filter out unwanted transmission types and fuel types
+data <- data %>%
+  filter(!Transmission.Type %in% c("UNKNOWN", "DIRECT_DRIVE")) %>%
+  filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
+
+
+# Remove rows with missing values in key numeric columns, as well as cars that cost over a million, as they skew the dataset.
+data <- data %>%
+  filter(!is.na(Number.of.Doors),
+         !is.na(Engine.Cylinders),
+          !is.na(Engine.HP)) %>%
+  filter(MSRP <= 1000000)
+
+# this is to take out one outlire that is not accurate 
+
+data <- data %>%
+  filter(highway.MPG <= 200)
+
+```
+
+
 ## Introduction
-Have you ever wondered why some cars cost significantly more than others? Whether it’s horsepower, fuel efficiency, drivetrain type, or even the number of doors, each feature plays a role in determining a vehicle’s price. For this project, we analyzed the Car Features and MSRP dataset to explore how different characteristics relate to a car’s MSRP. This dataset includes information such as engine performance, MPG, drivetrain, market category, and more.
-Our goal is to understand which features most strongly influence price and whether clear subgroups exist within the U.S. car market.
+
+Have you ever wondered why some cars cost significantly more than others? Whether it’s horsepower, fuel efficiency, drivetrain type, or even the number of doors, each feature plays a role in determining a vehicle’s price. For this project, we analyzed the Car Features and MSRP dataset to explore how different characteristics relate to a car’s MSRP. This dataset includes information such as engine performance, MPG, drivetrain, market category, and more. Our goal is to understand which features most strongly influence price and whether clear subgroups exist within the U.S. car market.
 
 ## Questions
-Domain Question:  
+
+Domain Question:\
 What factors most strongly influence a car’s price (MSRP)?
 
 Sub‑Questions:
 
-1. What is the average price for two‑door vs. four‑door cars?
+1.  What is the average price for two‑door vs. four‑door cars?
 
-2. How do engine size, horsepower, or MPG relate to MSRP?
+2.  How do engine size, horsepower, or MPG relate to MSRP?
 
-3. How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
+3.  How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
 
-4. Are there clusters or subgroups of cars (luxury vs. economy)?
+4.  Are there clusters or subgroups of cars (luxury vs. economy)?
 
 ## Unfiltered Data
 
@@ -35,7 +91,7 @@ Some text about this table and how interesting the results are!
 summary(cars)
 ```
 
-## Key Variable 
+## Key Variable
 
 Engine.HP – Horsepower
 
@@ -57,10 +113,107 @@ plot(pressure)
 
 some text about how cool my plot is.
 
-------------------------------------------------------------------------
 
-Three dashes make a new slide without having to put a title, and the three-# titles don't make a new slide, only the two and one.
 
-### see?
+## Top 10 Best Value Car Brands Based on MSRP, City MPG, and Highway MPG
 
-still on the same slide.
+```{r}
+top_unique_cars <- data %>%
+  filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
+  mutate(
+    msrp_score = (max(MSRP) - MSRP) / (max(MSRP) - min(MSRP)),
+    city_score = (city.mpg - min(city.mpg)) / (max(city.mpg) - min(city.mpg)),
+    highway_score = (highway.MPG - min(highway.MPG)) / (max(highway.MPG) - min(highway.MPG)),
+    total_score = msrp_score + city_score + highway_score
+  ) %>%
+  arrange(desc(total_score)) %>%
+  group_by(Make) %>%        # group by brand
+  slice(1) %>%              # take BEST car per brand
+  ungroup() %>%
+  arrange(desc(total_score)) %>%  # rank again across brands
+  select(Make, Model, Year, MSRP, city.mpg, highway.MPG, total_score) %>%
+  slice(1:10)
+
+top_unique_cars
+
+```
+## The thing is, this is a little misleading because it doesn’t tell the whole story...
+
+### When we filter by make (and not model), I’ll show you what happens with this pie chart on the next slide.
+
+## Nah, we’re joking—we know better than to use those “#DrShoemakerExtraPointsPlease”
+
+### Yes, we’re desperate enough to hold you at pie chart point 😭
+
+
+## Toyota and Honda form a duopoly on the chart, accounting for a mind-boggling 70% of the top 10 (kia keep up lil bro)
+```{r}
+top_unique_models <- data %>%
+  filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
+  mutate(
+    msrp_score = (max(MSRP) - MSRP) / (max(MSRP) - min(MSRP)),
+    city_score = (city.mpg - min(city.mpg)) / (max(city.mpg) - min(city.mpg)),
+    highway_score = (highway.MPG - min(highway.MPG)) / (max(highway.MPG) - min(highway.MPG)),
+    total_score = msrp_score + city_score + highway_score
+  ) %>%
+  arrange(desc(total_score)) %>%
+  group_by(Make, Model) %>%   # Key change
+  slice(1) %>%                # best version of each model
+  ungroup() %>%
+  arrange(desc(total_score)) %>%
+  slice(1:10) %>%
+  select(Make, Model, Year, MSRP, city.mpg, highway.MPG, total_score)
+
+
+brand_counts <- top_unique_models %>%
+  count(Make) %>%
+  mutate(
+    percent = n / sum(n),
+    percent_label = paste0(round(percent * 100), "%")
+  )
+
+# Order (Toyota + Honda first)
+brand_counts$Make <- factor(
+  brand_counts$Make,
+  levels = c("Toyota", "Honda", "Volkswagen", "Kia")
+)
+
+ggplot(brand_counts, aes(x = 1, y = percent, fill = Make)) +
+  geom_col(width = 0.18) +
+  geom_text(
+    aes(label = percent_label),
+    position = position_stack(vjust = 0.5),
+    size = 4,
+    color = "white",
+    fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = NULL, breaks = NULL) +
+  
+  # 🔥 Vibrant colors
+  scale_fill_manual(values = c(
+    "Toyota" = "#FF3B3B",     # bright red
+    "Honda" = "#FF6B3B",      # orange-red
+    "Volkswagen" = "#7B61FF", # vibrant purple
+    "Kia" = "#00B8B8"         # teal
+  )) +
+  
+  labs(
+    title = "Brand Share of Top 10 Value Cars",
+    subtitle = "Toyota and Honda dominate the distribution",
+    x = "",
+    y = "",
+    fill = "Make"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "right"
+  )
+  
+```
+
+
+## we can see that Toyota and Honda form a duopoly on the chart, accounting for a mind-boggling 7 out of the top 10 cars (kia keep up lil bro)
