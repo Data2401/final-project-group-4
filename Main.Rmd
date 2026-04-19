@@ -33,6 +33,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(dplyr)
+library(ggplot2)
 data <- read.csv("data.csv")
 head(data)
 ```
@@ -101,8 +102,6 @@ glimpse(data)
 
 What is the average price for tow door cars a s opposed to four door cars?
 ```{r}
-library(dplyr)
-library(ggplot2)
 data %>%
   group_by(Number.of.Doors) %>%
   summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
@@ -115,8 +114,6 @@ data %>%
 How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
 ```{r}
 
-library(dplyr)
-library(ggplot2)
 data %>%
   group_by(Driven_Wheels) %>%
   summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
@@ -132,25 +129,26 @@ Next, we compared average MSRP across drivetrain types between FWD, RWD, and AWD
 How do engine size, horsepower, or MPG relate to MSRP?
 ```{r}
 
-library(ggplot2)
 # Horsepower vs MSRP
 ggplot(data, aes(x = Engine.HP, y = MSRP)) +
   geom_point(alpha = 0.5, color = "steelblue") +
-  geom_smooth(method = "lm", se = FALSE, color = "darkblue") +
+  scale_y_continuous(labels = scales::label_comma()) +
   labs(title = "Horsepower vs MSRP",
        x = "Engine Horsepower",
        y = "MSRP")
+
 # City MPG vs MSRP
 ggplot(data, aes(x = city.mpg, y = MSRP)) +
   geom_point(alpha = 0.5, color = "firebrick") +
-  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
+  scale_y_continuous(labels = scales::label_comma()) +
   labs(title = "City MPG vs MSRP",
        x = "City MPG",
        y = "MSRP")
+
 # Highway MPG vs MSRP
 ggplot(data, aes(x = highway.MPG, y = MSRP)) +
   geom_point(alpha = 0.5, color = "forestgreen") +
-  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  scale_y_continuous(labels = scales::label_comma()) +
   labs(title = "Highway MPG vs MSRP",
        x = "Highway MPG",
        y = "MSRP")
@@ -162,8 +160,6 @@ Highway MPG follows the same pattern as city MPG. More efficient vehicles cluste
 Are there clusters or subgroups of cars (luxury vs. economy)?
 ```{r}
 
-library(dplyr)
-library(ggplot2)
 
 data$luxury_flag <- ifelse(
   grepl("Luxury|Performance|Exotic", data$Market.Category),
@@ -188,5 +184,21 @@ ggplot(data, aes(x = luxury_flag, y = MSRP, fill = luxury_flag)) +
 ```
 
 ```{r}
-data %>% ggplot(aes(x = MSRP, color = Make)) + geom_density()
+top_unique_cars <- data %>%
+  filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
+  mutate(
+    msrp_score = (max(MSRP) - MSRP) / (max(MSRP) - min(MSRP)),
+    city_score = (city.mpg - min(city.mpg)) / (max(city.mpg) - min(city.mpg)),
+    highway_score = (highway.MPG - min(highway.MPG)) / (max(highway.MPG) - min(highway.MPG)),
+    total_score = msrp_score + city_score + highway_score
+  ) %>%
+  arrange(desc(total_score)) %>%
+  group_by(Make) %>%        # group by brand
+  slice(1) %>%              # take BEST car per brand
+  ungroup() %>%
+  arrange(desc(total_score)) %>%  # rank again across brands
+  select(Make, Model, Year, MSRP, city.mpg, highway.MPG, total_score) %>%
+  slice(1:10)
+
+top_unique_cars
 ```
