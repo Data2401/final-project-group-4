@@ -68,6 +68,90 @@ data <- data %>%
 
 Have you ever wondered why some cars cost significantly more than others? Whether it’s horsepower, fuel efficiency, drivetrain type, or even the number of doors, each feature plays a role in determining a vehicle’s price. For this project, we analyzed the Car Features and MSRP dataset to explore how different characteristics relate to a car’s MSRP. This dataset includes information such as engine performance, MPG, drivetrain, market category, and more. Our goal is to understand which features most strongly influence price and whether clear subgroups exist within the U.S. car market.
 
+## Dataset
+
+- **Dataset:** Car Features and MSRP  
+- **Source:** Kaggle  
+- **Data scraped from:** Edmunds and Twitter  
+
+> Edmunds is a well-known automotive inventory and information resource —
+> a reliable source for U.S. market vehicle data.
+
+## Inside the Dataset
+
+- Each row represents a single car model
+- Each column represents a specific vehicle feature
+
+Variables cover:
+
+- Price (MSRP)
+- Engine performance (horsepower, cylinders)
+- Fuel efficiency (city and highway MPG)
+- Vehicle design (size, number of doors)
+- Drivetrain type (FWD, RWD, AWD)
+- Market category (Luxury, Performance, etc.)
+
+## Data Cleaning — Step 1: Standardizing Drivetrain Labels
+
+```{r echo=TRUE, eval=FALSE}
+data <- data %>%
+  mutate(Driven_Wheels = gsub("all wheel drive", "AWD", Driven_Wheels),
+         Driven_Wheels = gsub("rear wheel drive", "RWD", Driven_Wheels),
+         Driven_Wheels = gsub("front wheel drive", "FWD", Driven_Wheels),
+         Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
+```
+
+Standardized the Drivetrain label by their abbreviation
+- Well known
+- Looked better on the eye for graph
+
+## Data Cleaning — Step 2: Fuel Type Consolidation
+
+```{r echo=TRUE, eval=FALSE}
+data <- data %>%
+  mutate(Engine.Fuel.Type = case_when(
+    Engine.Fuel.Type == "premium unleaded (required)"    ~ "premium unleaded",
+    Engine.Fuel.Type == "premium unleaded (recommended)" ~ "premium unleaded",
+    Engine.Fuel.Type %in% c("flex-fuel (unleaded/E85)",
+                             "flex-fuel (premium unleaded recommended/E85)",
+                             "flex-fuel (premium unleaded required/E85)") ~ "Flex-Fuel",
+    TRUE ~ Engine.Fuel.Type
+  ))
+```
+
+## Data Cleaning — Step 3: Filtering Rare & Unknown Types
+
+```{r echo=TRUE, eval=FALSE}
+data <- data %>%
+  filter(!Transmission.Type %in% c("UNKNOWN", "DIRECT_DRIVE")) %>%
+  filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
+```
+
+Keeps the analysis focused on standard gasoline and flex-fuel vehicles with known transmissions.
+
+## Data Cleaning — Step 4: Dropping Rows with Missing Values
+
+```{r echo=TRUE, eval=FALSE}
+data <- data %>%
+  filter(!is.na(Number.of.Doors),
+         !is.na(Engine.Cylinders),
+         !is.na(Engine.HP))
+```
+
+Rows missing core variables like horsepower or cylinders can't contribute meaningfully to analysis.
+
+## Data Cleaning — Step 5: Removing Outliers
+
+```{r echo=TRUE, eval=FALSE}
+data <- data %>%
+  filter(MSRP <= 1000000) %>%
+  filter(highway.MPG <= 200)
+```
+
+- **MSRP > $1M** — exotic vehicles that compress the price scale for all other cars  
+- **Highway MPG > 200** — a data entry error that distorts MPG visualizations
+
+
 ## Questions
 
 Domain Question:\
