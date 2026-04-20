@@ -75,7 +75,7 @@ Sub‑Questions:
 
 3.  How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
 
-4.  Are there clusters or subgroups of cars (luxury vs. economy)?
+4.  Which car offers the best overall value when considering MSRP, fuel efficiency, and performance?
 
 ## Why this Question ?
 
@@ -182,28 +182,6 @@ data <- data %>%
 - **MSRP > $1M** — exotic vehicles that compress the price scale for all other cars  
 - **Highway MPG > 200** — a data entry error that distorts MPG visualizations
 
-## Top 10 Best Value Car Brands Based on MSRP, City MPG, and Highway MPG
-
-```{r}
-top_unique_cars <- data %>%
-  filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
-  mutate(
-    msrp_score = (max(MSRP) - MSRP) / (max(MSRP) - min(MSRP)),
-    city_score = (city.mpg - min(city.mpg)) / (max(city.mpg) - min(city.mpg)),
-    highway_score = (highway.MPG - min(highway.MPG)) / (max(highway.MPG) - min(highway.MPG)),
-    total_score = msrp_score + city_score + highway_score
-  ) %>%
-  arrange(desc(total_score)) %>%
-  group_by(Make) %>%        # group by brand
-  slice(1) %>%              # take BEST car per brand
-  ungroup() %>%
-  arrange(desc(total_score)) %>%  # rank again across brands
-  select(Make, Model, Year, MSRP, city.mpg, highway.MPG, total_score) %>%
-  slice(1:10)
-
-top_unique_cars
-
-```
 
 ## Two doors VS Four doors
 ```{r}
@@ -267,6 +245,31 @@ ggplot(data, aes(x = highway.MPG, y = MSRP)) +
        x = "Highway MPG",
        y = "MSRP")
 ```
+
+
+## Top 10 Best Value Car Brands Based on MSRP, City MPG, and Highway MPG
+
+```{r}
+top_unique_cars <- data %>%
+  filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
+  mutate(
+    msrp_score = (max(MSRP) - MSRP) / (max(MSRP) - min(MSRP)),
+    city_score = (city.mpg - min(city.mpg)) / (max(city.mpg) - min(city.mpg)),
+    highway_score = (highway.MPG - min(highway.MPG)) / (max(highway.MPG) - min(highway.MPG)),
+    total_score = msrp_score + city_score + highway_score
+  ) %>%
+  arrange(desc(total_score)) %>%
+  group_by(Make) %>%        # group by brand
+  slice(1) %>%              # take BEST car per brand
+  ungroup() %>%
+  arrange(desc(total_score)) %>%  # rank again across brands
+  select(Make, Model, Year, MSRP, city.mpg, highway.MPG, total_score) %>%
+  slice(1:10)
+
+top_unique_cars
+
+```
+
 
 - Highway MPG shows the same negative relationship with MSRP.
 
@@ -347,3 +350,13 @@ ggplot(brand_counts, aes(x = 1, y = percent, fill = Make)) +
   )
   
 ```
+
+
+## Summary
+
+
+- Price is strongly influenced by **horsepower and drivetrain type**  
+- **Higher horsepower → higher MSRP**, while **higher MPG → lower MSRP**  
+- **AWD vehicles** tend to be the most expensive, while **FWD are the cheapest**  
+- When ranking value, **Toyota and Honda dominate**, making up **70% of the top 10**  
+- Overall, the best value cars balance **low price, high fuel efficiency, and solid performance**  
