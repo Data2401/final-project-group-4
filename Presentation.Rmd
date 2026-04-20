@@ -68,7 +68,8 @@ Domain Question:\
 
 What factors most strongly influence a car's price (MSRP)?
 
-Sub‑Questions:
+Sub‑Questions:\
+
 1.  What is the average price for two‑door vs. four‑door cars?
 
 2.  How do engine size, horsepower, or MPG relate to MSRP?
