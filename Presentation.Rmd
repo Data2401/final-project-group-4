@@ -204,6 +204,72 @@ top_unique_cars <- data %>%
 top_unique_cars
 
 ```
+
+## Two doors VS Four doors
+```{r}
+data %>%
+  group_by(Number.of.Doors) %>%
+  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
+  ggplot(aes(x = Number.of.Doors, y = avg_MSRP)) +
+  geom_col()
+#this checks the average of each type of Number.of.Doors
+```
+
+- Two‑door cars tend to have higher average MSRPs, often due to sports/performance models car.
+
+## Average MSRP by Drivetrain type 
+```{r}
+data %>%
+  group_by(Driven_Wheels) %>%
+  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
+  ggplot(aes(x = Driven_Wheels, y = avg_MSRP, fill = Driven_Wheels)) +
+  geom_col() +
+  labs(title = "Average MSRP by Drivetrain Type",
+       x = "Drivetrain",
+       y = "Average MSRP")
+```
+
+- AWD vehicles have the highest average MSRP
+
+- FWD vehicles have the lowest
+
+## engine size, horsepower, MPG relationship with MSRP
+```{r}
+# Horsepower vs MSRP
+ggplot(data, aes(x = Engine.HP, y = MSRP)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(title = "Horsepower vs MSRP",
+       x = "Engine Horsepower",
+       y = "MSRP")
+```
+
+- Higher horsepower is strongly associated with higher MSRP.
+
+## City MPG vs MSRP
+```{r}
+ggplot(data, aes(x = city.mpg, y = MSRP)) +
+  geom_point(alpha = 0.5, color = "firebrick") +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(title = "City MPG vs MSRP",
+       x = "City MPG",
+       y = "MSRP")
+```
+
+- More fuel‑efficient cars tend to be cheaper.
+
+## Highway MPG vs MSRP
+```{r}
+ggplot(data, aes(x = highway.MPG, y = MSRP)) +
+  geom_point(alpha = 0.5, color = "forestgreen") +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(title = "Highway MPG vs MSRP",
+       x = "Highway MPG",
+       y = "MSRP")
+```
+
+- Highway MPG shows the same negative relationship with MSRP.
+
 ## The thing is, this is a little misleading because it doesn’t tell the whole story...
 
 ### When we filter by make (and not model), I’ll show you what happens with this pie chart on the next slide.
@@ -280,74 +346,4 @@ ggplot(brand_counts, aes(x = 1, y = percent, fill = Make)) +
     legend.position = "right"
   )
   
-```
-
-
-## Two doors VS Four doors
-```{r}
-data %>%
-  group_by(Number.of.Doors) %>%
-  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
-  ggplot(aes(x = Number.of.Doors, y = avg_MSRP)) +
-  geom_col()
-#this checks the average of each type of Number.of.Doors
-```
-
-## Average MSRP by Drivetrain type 
-```{r}
-data %>%
-  group_by(Driven_Wheels) %>%
-  summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
-  ggplot(aes(x = Driven_Wheels, y = avg_MSRP, fill = Driven_Wheels)) +
-  geom_col() +
-  labs(title = "Average MSRP by Drivetrain Type",
-       x = "Drivetrain",
-       y = "Average MSRP")
-```
-
-## engine size, horsepower, MPG relationship with MSRP
-```{r}
-# Horsepower vs MSRP
-ggplot(data, aes(x = Engine.HP, y = MSRP)) +
-  geom_point(alpha = 0.5, color = "steelblue") +
-  scale_y_continuous(labels = scales::label_comma()) +
-  labs(title = "Horsepower vs MSRP",
-       x = "Engine Horsepower",
-       y = "MSRP")
-
-# City MPG vs MSRP
-ggplot(data, aes(x = city.mpg, y = MSRP)) +
-  geom_point(alpha = 0.5, color = "firebrick") +
-  scale_y_continuous(labels = scales::label_comma()) +
-  labs(title = "City MPG vs MSRP",
-       x = "City MPG",
-       y = "MSRP")
-
-# Highway MPG vs MSRP
-ggplot(data, aes(x = highway.MPG, y = MSRP)) +
-  geom_point(alpha = 0.5, color = "forestgreen") +
-  scale_y_continuous(labels = scales::label_comma()) +
-  labs(title = "Highway MPG vs MSRP",
-       x = "Highway MPG",
-       y = "MSRP")
-```
-
-## luxury vs. economy
-
-```{r}
-data$luxury_flag <- ifelse(
-  grepl("Luxury|Performance|Exotic", data$Market.Category),
-  "Luxury",
-  "Non-Luxury"
-)
-ggplot(data, aes(x = luxury_flag, y = MSRP, fill = luxury_flag)) +
-  geom_boxplot() +
-  labs(title = "Luxury vs Non-Luxury MSRP Comparison",
-       x = "Category",
-       y = "MSRP") +
-  scale_y_log10() +
-  scale_fill_manual(values = c("Luxury" = "gold", "Non-Luxury" = "gray"))
-
-
-
 ```
