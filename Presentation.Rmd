@@ -16,13 +16,6 @@ head(data)
 ```
 
 ```{r}
-# Drop Market Category — too many NAs and not relevant to our analysis
-#data <- data %>%
-#  select(-Market.Category)
-# We will talk about this
-
-
-
 # Standardize drive wheel labels to abbreviations
 data <- data %>%
   mutate(Driven_Wheels = gsub("all wheel drive", "AWD", Driven_Wheels),
@@ -65,34 +58,70 @@ data <- data %>%
 
 
 ## Introduction
+Have you ever wondered why some cars cost significantly more than others?
+Using the **Car Features and MSRP** dataset from 1990-2017, we set out to answer our central question:
 
-Have you ever wondered why some cars cost significantly more than others? Whether it’s horsepower, fuel efficiency, drivetrain type, or even the number of doors, each feature plays a role in determining a vehicle’s price. For this project, we analyzed the Car Features and MSRP dataset to explore how different characteristics relate to a car’s MSRP. This dataset includes information such as engine performance, MPG, drivetrain, market category, and more. Our goal is to understand which features most strongly influence price and whether clear subgroups exist within the U.S. car market.
+> **What factors most strongly influence a car's price?**
+
+## Questions
+Domain Question:\
+
+What factors most strongly influence a car's price (MSRP)?
+
+Sub‑Questions:
+1.  What is the average price for two‑door vs. four‑door cars?
+
+2.  How do engine size, horsepower, or MPG relate to MSRP?
+
+3.  How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
+
+4.  Are there clusters or subgroups of cars (luxury vs. economy)?
+
+## Why this Question ?
+
+- Cars are a significant purchase for most people to make
+- Price is misunderstood
+- Help a buyer understand what drives costs to make a better decision
+
+## Libraries
+```{r echo=TRUE, eval=FALSE}
+library(dplyr)      # Data manipulation
+library(ggplot2)    # Data visualization
+library(scales)     # Formatting
+```
 
 ## Dataset
 
 - **Dataset:** Car Features and MSRP  
-- **Source:** Kaggle  
 - **Data scraped from:** Edmunds and Twitter  
 
-> Edmunds is a well-known automotive inventory and information resource —
-> a reliable source for U.S. market vehicle data.
+> Edmunds is a well-known automotive inventory and information resource — a reliable source for U.S. market vehicle data.
+
+- **Sources**  
+https://www.kaggle.com/datasets/CooperUnion/cardataset/data  
+https://www.edmunds.com
 
 ## Inside the Dataset
+```{r echo=FALSE}
+head(data)
+```
 
-- Each row represents a single car model
-- Each column represents a specific vehicle feature
+## Key Variables 
 
-Variables cover:
+- Engine.HP – Horsepower
 
-- Price (MSRP)
-- Engine performance (horsepower, cylinders)
-- Fuel efficiency (city and highway MPG)
-- Vehicle design (size, number of doors)
-- Drivetrain type (FWD, RWD, AWD)
-- Market category (Luxury, Performance, etc.)
+- city.mpg / highway.MPG – Fuel efficiency
+
+- Driven_Wheels – Drivetrain type
+
+- Number.of.Doors – Vehicle design
+
+- Market.Category – Luxury, performance, exotic, etc.
+
+- MSRP – Manufacturer’s Suggested Retail Price
+
 
 ## Data Cleaning — Step 1: Standardizing Drivetrain Labels
-
 ```{r echo=TRUE, eval=FALSE}
 data <- data %>%
   mutate(Driven_Wheels = gsub("all wheel drive", "AWD", Driven_Wheels),
@@ -106,7 +135,6 @@ Standardized the Drivetrain label by their abbreviation
 - Looked better on the eye for graph
 
 ## Data Cleaning — Step 2: Fuel Type Consolidation
-
 ```{r echo=TRUE, eval=FALSE}
 data <- data %>%
   mutate(Engine.Fuel.Type = case_when(
@@ -119,18 +147,21 @@ data <- data %>%
   ))
 ```
 
-## Data Cleaning — Step 3: Filtering Rare & Unknown Types
+- Multiple verbose variants of the same fuel type were being treated as separate categories
 
+
+## Data Cleaning — Step 3: Filtering Rare & Unknown Types
 ```{r echo=TRUE, eval=FALSE}
 data <- data %>%
   filter(!Transmission.Type %in% c("UNKNOWN", "DIRECT_DRIVE")) %>%
   filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
 ```
 
-Keeps the analysis focused on standard gasoline and flex-fuel vehicles with known transmissions.
+- Transmission types labeled UNKNOWN provide no analytical value
+- Natural gas and electric vehicles follow different pricing structures than standard vehicles
+
 
 ## Data Cleaning — Step 4: Dropping Rows with Missing Values
-
 ```{r echo=TRUE, eval=FALSE}
 data <- data %>%
   filter(!is.na(Number.of.Doors),
@@ -138,10 +169,10 @@ data <- data %>%
          !is.na(Engine.HP))
 ```
 
-Rows missing core variables like horsepower or cylinders can't contribute meaningfully to analysis.
+- Rows missing horsepower, cylinders, or doors cannot contribute to price analysis
+
 
 ## Data Cleaning — Step 5: Removing Outliers
-
 ```{r echo=TRUE, eval=FALSE}
 data <- data %>%
   filter(MSRP <= 1000000) %>%
@@ -150,54 +181,6 @@ data <- data %>%
 
 - **MSRP > $1M** — exotic vehicles that compress the price scale for all other cars  
 - **Highway MPG > 200** — a data entry error that distorts MPG visualizations
-
-
-## Questions
-
-Domain Question:\
-What factors most strongly influence a car’s price (MSRP)?
-
-Sub‑Questions:
-
-1.  What is the average price for two‑door vs. four‑door cars?
-
-2.  How do engine size, horsepower, or MPG relate to MSRP?
-
-3.  How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
-
-4.  Are there clusters or subgroups of cars (luxury vs. economy)?
-
-## Unfiltered Data
-
-Some text about this table and how interesting the results are!
-
-```{r cars, echo = TRUE}
-summary(cars)
-```
-
-## Key Variable
-
-Engine.HP – Horsepower
-
-city.mpg / highway.MPG – Fuel efficiency
-
-Driven_Wheels – Drivetrain type
-
-Number.of.Doors – Vehicle design
-
-Market.Category – Luxury, performance, exotic, etc.
-
-MSRP – Manufacturer’s Suggested Retail Price
-
-## Slide with Plot
-
-```{r pressure}
-plot(pressure)
-```
-
-some text about how cool my plot is.
-
-
 
 ## Top 10 Best Value Car Brands Based on MSRP, City MPG, and Highway MPG
 
