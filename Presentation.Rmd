@@ -131,7 +131,7 @@ data <- data %>%
          Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
 ```
 
-Standardized the Drivetrain label by their abbreviation
+- Standardized the Drivetrain label by their abbreviation
 - Well known
 - Looked better on the eye for graph
 
@@ -148,7 +148,7 @@ data <- data %>%
   ))
 ```
 
-- Multiple verbose variants of the same fuel type were being treated as separate categories
+- Multiple variants of the same fuel type were being treated as separate categories
 
 
 ## Data Cleaning — Step 3: Filtering Rare & Unknown Types
@@ -158,8 +158,8 @@ data <- data %>%
   filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
 ```
 
-- Transmission types labeled UNKNOWN provide no analytical value
 - Natural gas and electric vehicles follow different pricing structures than standard vehicles
+- Decided to get rid of "UNKOWN" and "DIRECT_DRIVE" Transmission since it was only a hand full of rows
 
 
 ## Data Cleaning — Step 4: Dropping Rows with Missing Values
@@ -170,7 +170,7 @@ data <- data %>%
          !is.na(Engine.HP))
 ```
 
-- Rows missing horsepower, cylinders, or doors cannot contribute to price analysis
+- Rows missing horsepower, cylinders, or doors were taking out to prevent the data skew
 
 
 ## Data Cleaning — Step 5: Removing Outliers
@@ -180,18 +180,27 @@ data <- data %>%
   filter(highway.MPG <= 200)
 ```
 
-- **MSRP > $1M** — exotic vehicles that compress the price scale for all other cars  
+- **MSRP > $1M** — We want to focus on cars less than 1 million
 - **Highway MPG > 200** — a data entry error that distorts MPG visualizations
 
 
 ## Two doors VS Four doors
 ```{r}
 data %>%
+  filter(Number.of.Doors %in% c(2, 4)) %>%
   group_by(Number.of.Doors) %>%
   summarize(avg_MSRP = mean(MSRP, na.rm = TRUE)) %>%
-  ggplot(aes(x = Number.of.Doors, y = avg_MSRP)) +
-  geom_col()
-#this checks the average of each type of Number.of.Doors
+  ggplot(aes(x = factor(Number.of.Doors), y = avg_MSRP, fill = factor(Number.of.Doors))) +
+  geom_col() +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  scale_fill_manual(values = c("2" = "steelblue", "4" = "coral")) +
+  labs(
+    title = "Average MSRP by Number of Doors",
+    x = "Number of Doors",
+    y = "Average MSRP (USD)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
 ```
 
 - Two‑door cars tend to have higher average MSRPs, often due to sports/performance models car.
