@@ -1,11 +1,17 @@
 ---
-title: "Main"
-author: "GROUP 4"
-date: "2026-04-08"
-output: html_document
+title: "Exploring the US Car Market: Factors Influencing MSRP"
+author: "Group 4"
+date: "2026-04-27"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: flatly
+    number_sections: true
 ---
 
-# Introduction--
+# Introduction
 
 When we think about cars, we often focus on style, performance, or brand reputation but behind every vehicle is a combination of features that ultimately determine its price. For this project, we chose to analyze the Car Features and MSRP dataset from Kaggle, which contains detailed information about thousands of vehicles sold in the U.S. market. Each row represents a single car, and each column describes a specific characteristic such as horsepower, fuel efficiency, drivetrain type, number of doors, market category, and more.
 
