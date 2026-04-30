@@ -47,12 +47,6 @@ data <- read.csv("data.csv")
 head(data)
 ```
 # Data Cleaning
-```{r}
-# Drop Market Category — too many NAs and not relevant to our analysis
-#data <- data %>%
-#  select(-Market.Category)
-# We will talk about this
-```
 
 ```{r}
 # Standardize drive wheel labels to abbreviations

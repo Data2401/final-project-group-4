@@ -1666,10 +1666,6 @@ head(data)</code></pre>
 </div>
 <div id="data-cleaning" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Data Cleaning</h1>
-<pre class="r"><code># Drop Market Category — too many NAs and not relevant to our analysis
-#data &lt;- data %&gt;%
-#  select(-Market.Category)
-# We will talk about this</code></pre>
 <pre class="r"><code># Standardize drive wheel labels to abbreviations
 data &lt;- data %&gt;%
   mutate(Driven_Wheels = gsub(&quot;all wheel drive&quot;, &quot;AWD&quot;, Driven_Wheels),
