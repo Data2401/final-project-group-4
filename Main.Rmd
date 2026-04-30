@@ -62,9 +62,7 @@ data <- data %>%
          Driven_Wheels = gsub("front wheel drive", "FWD", Driven_Wheels),
          Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
 ```
-- Standardized the Drivetrain label by their abbreviation
-- Well known
-- Looked better on the eye for graph
+The drivetrain column originally had the full names written out like "all wheel drive" and "rear wheel drive," which made our graphs look really cluttered, especially on the x-axis where the labels would overlap. We swapped them out for the standard abbreviations (AWD, RWD, FWD, 4WD) since those are what most people recognize anyway when they're shopping for a car. It's a small change but it made our visualizations way easier to read and gave them a more professional look.
 
 ```{r}
 # Consolidate verbose fuel type labels into clean, consistent categories
@@ -80,7 +78,8 @@ data <- data %>%
     TRUE ~ Engine.Fuel.Type
   ))
 ```
-- Multiple variants of the same fuel type were being treated as separate categories
+
+When we first ran a summary on the Engine.Fuel.Type column, we realized there were like five different versions of "flex-fuel" being treated as totally separate categories just because the wording in parentheses was slightly different. The same thing was happening with premium unleaded, where "(required)" and "(recommended)" were splitting it into two groups. For our analysis, those distinctions don't really matter since we just care about the general fuel type, so we merged them all into cleaner categories. This made our groupings actually meaningful instead of having a bunch of tiny categories with only a few cars each.
 
 ```{r}
 # Filter out unwanted transmission types and fuel types
@@ -89,8 +88,7 @@ data <- data %>%
   filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
 
 ```
-- Natural gas and electric vehicles follow different pricing structures than standard vehicles
-- Decided to get rid of "UNKOWN" and "DIRECT_DRIVE" Transmission since it was only a hand full of rows
+We took out a few categories that didn't fit with the rest of our data. For transmissions, "UNKNOWN" obviously wasn't useful since we couldn't say anything about cars where we don't even know the transmission, and "DIRECT_DRIVE" only showed up in a handful of rows. For fuel types, we dropped natural gas and electric vehicles because on kaggle where we got this dataset from we couldn't find a conversion for the mpg. After seeing this we decided to just focus on gas vehicles.
 
 ```{r}
 # Remove rows with missing values in key numeric columns, as well as cars that cost over a million, as they skew the dataset.
@@ -100,7 +98,8 @@ data <- data %>%
           !is.na(Engine.HP)) %>%
   filter(MSRP <= 1000000)
 ```
-- Rows missing horsepower, cylinders, or doors were taking out to prevent the data skew
+
+For the missing values, we decided to just drop the rows where horsepower, cylinder count, or number of doors were NA. These features are super important to a few of our research questions. Luckily it wasn't a huge chunk of the dataset, so taking those rows out didn't really affect the overall results. We also wanted to focus on cars that were under 1 million dollars since most cars after that price range are realistic for what we are researching.
 
 ```{r}
 # this is to take out one outlire that is not accurate 
@@ -109,8 +108,8 @@ data <- data %>%
   filter(highway.MPG <= 200)
 
 ```
-- **MSRP > $1M** — We want to focus on cars less than 1 million
-- **Highway MPG > 200** — a data entry error that distorts MPG visualizations
+
+While we were exploring the data we noticed one row with a highway MPG over 200, which is obviously not real since no gas car gets that kind of mileage. It was clearly a data entry error, so we filtered out anything above 200 MPG to clean it up. Without doing this, our MPG vs MSRP scatterplot had this one weird point way off to the right that squished all the actual data into a tiny corner of the graph.
 
 # Data
 ```{r}
