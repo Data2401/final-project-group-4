@@ -1,15 +1,14 @@
 ---
-title: "Exploring the US Car Market: Factors Influencing MSRP"
-author: "Group 4"
-date: "2026-04-27"
-output:
-  html_document:
-    toc: true
-    toc_float: true
-    code_folding: show
-    theme: flatly
-    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
+
+------------------------------------------------------------------------
+
+-title: "Exploring the US Car Market: Factors Influencing MSRP" author:
+"Group 4" date: "2026-04-27" output: html_document: toc: true toc_float:
+true code_folding: show theme: flatly number_sections: true
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -20,7 +19,20 @@ library(scales)
 
 # Introduction
 
-While discussing cars, the most common factors considered would be their style, performance, or brand name; however, the underlying combination of features makes up the actual cost of a vehicle. For this project, we used the Car Features and MSRP data set found on Kaggle. The data set consists of information regarding thousands of cars sold in the United States, and each row describes one car in terms of features such as its horsepower, gas mileage, type of drivetrain, number of doors, and market segment. Such a data set is perfect for studying how various attributes affect the MSRP of a car since it can contain both numeric and nominal values. Our goal is to identify which features have the strongest relationship with MSRP and how different types of vehicles cluster within the market. To guide our analysis, we developed one main domain question along with several sub‑questions focused on specific vehicle features.
+While discussing cars, the most common factors considered would be their
+style, performance, or brand name; however, the underlying combination
+of features makes up the actual cost of a vehicle. For this project, we
+used the Car Features and MSRP data set found on Kaggle. The data set
+consists of information regarding thousands of cars sold in the United
+States, and each row describes one car in terms of features such as its
+horsepower, gas mileage, type of drivetrain, number of doors, and market
+segment. Such a data set is perfect for studying how various attributes
+affect the MSRP of a car since it can contain both numeric and nominal
+values. Our goal is to identify which features have the strongest
+relationship with MSRP and how different types of vehicles cluster
+within the market. To guide our analysis, we developed one main domain
+question along with several sub‑questions focused on specific vehicle
+features.
 
 ```{r echo=TRUE, eval=FALSE}
 library(dplyr)      # Data manipulation
@@ -30,22 +42,32 @@ library(scales)     # Formatting
 
 # Research Questions
 
-Domain Question: 
+Domain Question:
 
-* What factors most strongly influence a car’s price(MSRP)? This question helps frame the overall purpose of the project identifying which vehicle characteristics are most closely associated with higher or lower prices. Sub Questions: What is the average price for two‑door cars as opposed to four‑door cars? This examines whether basic design features influence MSRP.
+-   What factors most strongly influence a car’s price(MSRP)? This
+    question helps frame the overall purpose of the project identifying
+    which vehicle characteristics are most closely associated with
+    higher or lower prices. Sub Questions: What is the average price for
+    two‑door cars as opposed to four‑door cars? This examines whether
+    basic design features influence MSRP.
 
-* How do engine size, horsepower, or MPG relate to MSRP? This explores performance‑based predictors of price.
+-   How do engine size, horsepower, or MPG relate to MSRP? This explores
+    performance‑based predictors of price.
 
-* How does drivetrain type (FWD, RWD, AWD) influence average MSRP? This looks at how mechanical systems relate to cost.
+-   How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
+    This looks at how mechanical systems relate to cost.
 
-* Which car offers the best overall value when considering MSRP, fuel efficiency, and performance?
+-   Which car offers the best overall value when considering MSRP, fuel
+    efficiency, and performance?
 
-Together, these questions allow for a complete analysis of how design, performance, and market identity contribute to vehicle pricing.
+Together, these questions allow for a complete analysis of how design,
+performance, and market identity contribute to vehicle pricing.
 
 ```{r}
 data <- read.csv("data.csv")
 head(data)
 ```
+
 # Data Cleaning
 
 ```{r}
@@ -56,7 +78,14 @@ data <- data %>%
          Driven_Wheels = gsub("front wheel drive", "FWD", Driven_Wheels),
          Driven_Wheels = gsub("four wheel drive", "4WD", Driven_Wheels))
 ```
-The drivetrain column originally had the full names written out like "all wheel drive" and "rear wheel drive," which made our graphs look really cluttered, especially on the x-axis where the labels would overlap. We swapped them out for the standard abbreviations (AWD, RWD, FWD, 4WD) since those are what most people recognize anyway when they're shopping for a car. It's a small change but it made our visualizations way easier to read and gave them a more professional look.
+
+The drivetrain column originally had the full names written out like
+"all wheel drive" and "rear wheel drive," which made our graphs look
+really cluttered, especially on the x-axis where the labels would
+overlap. We swapped them out for the standard abbreviations (AWD, RWD,
+FWD, 4WD) since those are what most people recognize anyway when they're
+shopping for a car. It's a small change but it made our visualizations
+way easier to read and gave them a more professional look.
 
 ```{r}
 # Consolidate verbose fuel type labels into clean, consistent categories
@@ -73,7 +102,15 @@ data <- data %>%
   ))
 ```
 
-When we first ran a summary on the Engine.Fuel.Type column, we realized there were like five different versions of "flex-fuel" being treated as totally separate categories just because the wording in parentheses was slightly different. The same thing was happening with premium unleaded, where "(required)" and "(recommended)" were splitting it into two groups. For our analysis, those distinctions don't really matter since we just care about the general fuel type, so we merged them all into cleaner categories. This made our groupings actually meaningful instead of having a bunch of tiny categories with only a few cars each.
+When we first ran a summary on the Engine.Fuel.Type column, we realized
+there were like five different versions of "flex-fuel" being treated as
+totally separate categories just because the wording in parentheses was
+slightly different. The same thing was happening with premium unleaded,
+where "(required)" and "(recommended)" were splitting it into two
+groups. For our analysis, those distinctions don't really matter since
+we just care about the general fuel type, so we merged them all into
+cleaner categories. This made our groupings actually meaningful instead
+of having a bunch of tiny categories with only a few cars each.
 
 ```{r}
 # Filter out unwanted transmission types and fuel types
@@ -82,7 +119,14 @@ data <- data %>%
   filter(!Engine.Fuel.Type %in% c("", "natural gas", "electric"))
 
 ```
-We took out a few categories that didn't fit with the rest of our data. For transmissions, "UNKNOWN" obviously wasn't useful since we couldn't say anything about cars where we don't even know the transmission, and "DIRECT_DRIVE" only showed up in a handful of rows. For fuel types, we dropped natural gas and electric vehicles because on kaggle where we got this dataset from we couldn't find a conversion for the mpg. After seeing this we decided to just focus on gas vehicles.
+
+We took out a few categories that didn't fit with the rest of our data.
+For transmissions, "UNKNOWN" obviously wasn't useful since we couldn't
+say anything about cars where we don't even know the transmission, and
+"DIRECT_DRIVE" only showed up in a handful of rows. For fuel types, we
+dropped natural gas and electric vehicles because on kaggle where we got
+this dataset from we couldn't find a conversion for the mpg. After
+seeing this we decided to just focus on gas vehicles.
 
 ```{r}
 # Remove rows with missing values in key numeric columns, as well as cars that cost over a million, as they skew the dataset.
@@ -93,7 +137,13 @@ data <- data %>%
   filter(MSRP <= 1000000)
 ```
 
-For the missing values, we decided to just drop the rows where horsepower, cylinder count, or number of doors were NA. These features are super important to a few of our research questions. Luckily it wasn't a huge chunk of the dataset, so taking those rows out didn't really affect the overall results. We also wanted to focus on cars that were under 1 million dollars since most cars after that price range are realistic for what we are researching.
+For the missing values, we decided to just drop the rows where
+horsepower, cylinder count, or number of doors were NA. These features
+are super important to a few of our research questions. Luckily it
+wasn't a huge chunk of the dataset, so taking those rows out didn't
+really affect the overall results. We also wanted to focus on cars that
+were under 1 million dollars since most cars after that price range are
+realistic for what we are researching.
 
 ```{r}
 # this is to take out one outlire that is not accurate 
@@ -103,16 +153,37 @@ data <- data %>%
 
 ```
 
-While we were exploring the data we noticed one row with a highway MPG over 200, which is obviously not real since no gas car gets that kind of mileage. It was clearly a data entry error, so we filtered out anything above 200 MPG to clean it up. Without doing this, our MPG vs MSRP scatterplot had this one weird point way off to the right that squished all the actual data into a tiny corner of the graph.
+While we were exploring the data we noticed one row with a highway MPG
+over 200, which is obviously not real since no gas car gets that kind of
+mileage. It was clearly a data entry error, so we filtered out anything
+above 200 MPG to clean it up. Without doing this, our MPG vs MSRP
+scatterplot had this one weird point way off to the right that squished
+all the actual data into a tiny corner of the graph.
 
 # Data
+
 ```{r}
 glimpse(data)
 ```
-The Car Features and MSRP dataset consists of extensive data on numerous automobiles that were bought in the American market. In the dataset, one record refers to one car. Every attribute in a given record refers to some car feature. Some of the attributes found in this dataset include numeric variables like engine power, cylinders, city fuel efficiency, and highway fuel efficiency. Moreover, we also have some categorical attributes like drivetrain type, door type, transmission type, fuel type, and category. All these factors help us in having a clear understanding of how the different car models differ from one another in terms of their physical structure and mechanics. This dataset consists of both performance and economy cars, which makes it very suitable for studying price differences among them.
+
+The Car Features and MSRP dataset consists of extensive data on numerous
+automobiles that were bought in the American market. In the dataset, one
+record refers to one car. Every attribute in a given record refers to
+some car feature. Some of the attributes found in this dataset include
+numeric variables like engine power, cylinders, city fuel efficiency,
+and highway fuel efficiency. Moreover, we also have some categorical
+attributes like drivetrain type, door type, transmission type, fuel
+type, and category. All these factors help us in having a clear
+understanding of how the different car models differ from one another in
+terms of their physical structure and mechanics. This dataset consists
+of both performance and economy cars, which makes it very suitable for
+studying price differences among them.
 
 # Sub Question 1
-What is the average price for two door cars as opposed to four door cars?
+
+What is the average price for two door cars as opposed to four door
+cars?
+
 ```{r}
 data %>%
   group_by(Number.of.Doors) %>%
@@ -121,11 +192,18 @@ data %>%
   geom_col()
 #this checks the average of each type of Number.of.Doors
 ```
-- Two‑door cars tend to have higher average MSRPs, often due to sports/performance models car.
-In this bar graph, you can see the comparison of average MSRP in relation to the number of doors. The average MSRP of two-door cars is much higher compared to four door cars because most two-door cars belong to the performance class of cars.
+
+-   Two‑door cars tend to have higher average MSRPs, often due to
+    sports/performance models car. In this bar graph, you can see the
+    comparison of average MSRP in relation to the number of doors. The
+    average MSRP of two-door cars is much higher compared to four door
+    cars because most two-door cars belong to the performance class of
+    cars.
 
 # Sub question 2
+
 How does drivetrain type (FWD, RWD, AWD) influence average MSRP?
+
 ```{r}
 
 data %>%
@@ -138,10 +216,15 @@ data %>%
        y = "Average MSRP")
 ```
 
-The bar graph below demonstrates the variation in the average MSRP of cars according to their drivetrain type. In this case, cars that have the AWD drivetrain type are the most expensive, followed by RWD and FWD respectively. 
+The bar graph below demonstrates the variation in the average MSRP of
+cars according to their drivetrain type. In this case, cars that have
+the AWD drivetrain type are the most expensive, followed by RWD and FWD
+respectively.
 
 # Sub question 3
+
 How do engine size, horsepower, or MPG relate to MSRP?
+
 ```{r}
 
 # Horsepower vs MSRP
@@ -169,10 +252,19 @@ ggplot(data, aes(x = highway.MPG, y = MSRP)) +
        y = "MSRP")
 ```
 
-This bar graph demonstrates a correlation between the horsepower and MSRP of a car. As it can be seen from the picture above, the stronger the horsepower, the higher MSRP is. This correlation proves that high-horsepower cars are expensive due to the cost of production. The next scatterplot demonstrates the relationship between MPG City and MSRP. As it can be seen from the scatterplot above, low-MPG city cars are the most expensive, while high-MPG cars are cheaper.
+This bar graph demonstrates a correlation between the horsepower and
+MSRP of a car. As it can be seen from the picture above, the stronger
+the horsepower, the higher MSRP is. This correlation proves that
+high-horsepower cars are expensive due to the cost of production. The
+next scatterplot demonstrates the relationship between MPG City and
+MSRP. As it can be seen from the scatterplot above, low-MPG city cars
+are the most expensive, while high-MPG cars are cheaper.
 
 # sub question 4
- Which car offers the best overall value when considering MSRP, fuel efficiency, and performance?
+
+Which car offers the best overall value when considering MSRP, fuel
+efficiency, and performance?
+
 ```{r}
 top_unique_cars <- data %>%
   filter(!is.na(MSRP), !is.na(city.mpg), !is.na(highway.MPG)) %>%
@@ -193,11 +285,32 @@ top_unique_cars <- data %>%
 top_unique_cars
 ```
 
-This table shows the leading cars according to the best value in terms of three components MSRP, city MPG, and highway MPG. To ensure a level playing field among all cars, the individual scores for each vehicle based on the degree of its affordability (in terms of lower MSRP), efficiency (based on higher MPG values), and performance compared to other vehicles in the database have been calculated, standardized, and summed up. The table ranks leading vehicles by each brand, and thereafter lists these brands from best to worst.
+This table shows the leading cars according to the best value in terms
+of three components MSRP, city MPG, and highway MPG. To ensure a level
+playing field among all cars, the individual scores for each vehicle
+based on the degree of its affordability (in terms of lower MSRP),
+efficiency (based on higher MPG values), and performance compared to
+other vehicles in the database have been calculated, standardized, and
+summed up. The table ranks leading vehicles by each brand, and
+thereafter lists these brands from best to worst.
 
 # Result
 
+### Main Question: What factors most strongly influence MSRP?
+MSRP is mainly influenced by horsepower (positive relationship), drivetrain type (AWD highest), and fuel efficiency (negative relationship with MPG).
 
+### Sub Question 1: Two-door vs four-door pricing?
+Two-door cars have a higher average MSRP than four-door cars, likely due to performance-focused designs.
+
+### Sub Question 2: Drivetrain impact on MSRP?
+AWD vehicles have the highest average MSRP, followed by RWD, then FWD.
+
+### Sub Question 3: Engine size, horsepower, MPG vs MSRP?
+Higher horsepower increases MSRP, while higher MPG (city and highway) decreases MSRP.
+
+### Sub Question 4: Best value cars?
+Hybrid vehicles (like the Toyota Prius) rank highest because they balance low cost with high fuel efficiency.
+top_unique_cars
 
 
 # conclusion
